@@ -4,4 +4,6 @@
 !Makefile
 glew/
 glfw/
+.idea/
+cmake-build-debug/
 *.o

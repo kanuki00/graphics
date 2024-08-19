@@ -1,5 +1,7 @@
 #include "glew/include/GL/glew.h"
 #include "glfw/include/GLFW/glfw3.h"
+#include "json/single_include/nlohmann/json.hpp"
+#include "glm/glm/glm.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -67,10 +69,10 @@ int main()
 	std::cout << glGetString(GL_VERSION) << "\n";
 
 	float positions[] = {
-		-0.5f, -0.5f,
-		 0.5f, -0.5f,
-		 0.5f,  0.5f,
-		-0.5f,  0.5f
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0,
+		 0.5f,  0.5f, 0.21f,
+		-0.5f,  0.5f, 0.0f
 	};
 
 	unsigned int indices[] = {
@@ -81,10 +83,11 @@ int main()
 	unsigned int vertexBufferObject;
 	glGenBuffers(1, &vertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), positions, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, static_cast<const void*>(0));
+	// size is component count
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, static_cast<const void*>(0));
 
 	unsigned int indexBufferObject;
 	glGenBuffers(1, &indexBufferObject);

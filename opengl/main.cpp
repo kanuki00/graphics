@@ -64,7 +64,18 @@ static unsigned int CompileShader(unsigned int type, const std::string &source) 
 	glShaderSource(id, 1, &src, nullptr);
 	//
 	glCompileShader(id);
-	// TODO compilation error handling
+
+	int compileResult;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &compileResult);
+	if(compileResult == GL_FALSE) {
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		// creating a string on the stack with the size of error message length.
+		char* errorMessage = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(id, length, &length, errorMessage);
+		std::cout << "Failed to compile shader\n" << errorMessage << "\n";
+	}
+
 	return id;
 }
 

@@ -6,12 +6,46 @@
 #include <fstream>
 #include <sstream>
 
+using json = nlohmann::json;
+
 struct vertex {
 
 };
 
-void LoadModel(float &positions, unsigned int &indices, const std::string &path) {
-	// TODO
+int LoadModelVertexPositionsCount(const char path[]) {
+	std::ifstream file = std::ifstream(path);
+	json data = json::parse(file);
+	return data["vertices"].size() * 3;
+}
+
+float* LoadModelVertexPositions(const char path[], float vertexPositions[]) {
+	std::ifstream file = std::ifstream(path);
+	json data = json::parse(file);
+	int count = data["vertices"].size();
+	//std::cout << count << "\n";
+
+	for(int i = 0; i < count; i++) {
+		vertexPositions[i*3] = data["vertices"][i][0];
+		vertexPositions[i*3+1] = data["vertices"][i][1];
+		vertexPositions[i*3+2] = data["vertices"][i][2];
+	}
+	return vertexPositions;
+}
+
+int LoadModelIndicesCount(const char path[]) {
+	auto file = std::ifstream(path);
+	json data = json::parse(file);
+	return data["indices"].size();
+}
+
+unsigned int* LoadModelIndices(const char path[], unsigned int indices[]) {
+	auto file = std::ifstream(path);
+	json data = json::parse(file);
+	int count = data["indices"].size();
+	for(int i = 0; i < count; i++) {
+		indices[i] = data["indices"][i];
+	}
+	return indices;
 }
 
 void LoadShader(std::string &shader, const std::string &path) {
@@ -68,22 +102,19 @@ int main()
 
 	std::cout << glGetString(GL_VERSION) << "\n";
 
-	float positions[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0,
-		 0.5f,  0.5f, 0.21f,
-		-0.5f,  0.5f, 0.0f
-	};
 
-	unsigned int indices[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
+	int vertco_comp_count = LoadModelVertexPositionsCount("../mesh_suzanne.json");
+	float temp_pos[vertco_comp_count];
+	float* positions = LoadModelVertexPositions("../mesh_suzanne.json", temp_pos);
+
+	int ind_count = LoadModelIndicesCount("../mesh_suzanne.json");
+	unsigned int temp_ind[ind_count];
+	unsigned int* indices = LoadModelIndices("../mesh_suzanne.json", temp_ind);
 
 	unsigned int vertexBufferObject;
 	glGenBuffers(1, &vertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertco_comp_count * sizeof(float), positions, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	// size is component count
@@ -92,7 +123,7 @@ int main()
 	unsigned int indexBufferObject;
 	glGenBuffers(1, &indexBufferObject);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ind_count * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	std::string vertexShader;
 	std::string fragmentShader;
@@ -110,7 +141,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Drawcall
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, ind_count, GL_UNSIGNED_INT, nullptr);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

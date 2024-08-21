@@ -9,3 +9,4 @@ glm/
 .idea/
 cmake-build-debug/
 *.o
+*.json

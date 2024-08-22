@@ -1,12 +1,16 @@
+# ignoring all
 *
+# unignoring files with extensions, folders and makefiles
 !*.*
 !*/
 !Makefile
+# ignoring unwanted folders
 glew/
 glfw/
 json/
 glm/
 .idea/
 cmake-build-debug/
+# ignoring unwanted file types
 *.o
 *.json
